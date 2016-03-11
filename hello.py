@@ -1,7 +1,7 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #-*- coding:utf-8 -*-
 
-import string, urllib2
+import string, urllib.request
 import re
 
 urlbase = 'http://www.snut.edu.cn/'
@@ -15,13 +15,13 @@ header = {
 
 def spider(url):
     for i in range(1):  
-        sName = string.zfill(i,5) + '.html'#自动填充成六位的文件名   
-        print '正在下载第' + str(i) + '个网页，并将其存储为' + sName + '......'
+        sName = 'test.html'#自动填充成六位的文件名   
+        print('正在下载第' + str(i) + '个网页，并将其存储为' + sName + '......')
         f = open(sName,'w+')
         
-        req = urllib2.Request(url, str(header))
-        socket = urllib2.urlopen(req)
-        m = socket.read()
+        req = urllib.request.Request(url, None, header)
+        socket = urllib.request.urlopen(req)
+        m = socket.read().decode('UTF-8')
         #m = urllib2.urlopen(url + str(i)).read()  
         check = re.findall(r'http://[\w.]+', m)
         for x in check:
