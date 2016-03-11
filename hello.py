@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 #-*- coding:utf-8 -*-
 
-import string, urllib.request
+import string, urllib.request, urllib.error
 import re
+import queue
 
-urlbase = 'http://www.snut.edu.cn/'
+urlbase = 'http://www.snut.edu.cn'
 
 header = {
     'Connection': 'Keep-Alive',
@@ -14,20 +15,65 @@ header = {
 } 
 
 def spider(url):
-    for i in range(1):  
-        sName = 'test.html'#自动填充成六位的文件名   
-        print('正在下载第' + str(i) + '个网页，并将其存储为' + sName + '......')
-        f = open(sName,'w+')
-        
+    #sName = 'test.html'
+    #print('正在下载第' + str(i) + '个网页，并将其存储为' + sName + '......')
+    f = open('temp', 'w+')
+
+    wait_q = []
+    has_q = []
+
+    while True:
         req = urllib.request.Request(url, None, header)
-        socket = urllib.request.urlopen(req)
-        m = socket.read().decode('UTF-8')
-        #m = urllib2.urlopen(url + str(i)).read()  
-        check = re.findall(r'http://[\w.]+', m)
+        try:
+            socket = urllib.request.urlopen(req, timeout = 2)
+            print('已下载' + str(url))
+            f.write('已下载' + url + '\n')
+            f.flush()
+        except BaseException:
+            print('%s 不可达' % url)
+        #except urllib.error.HTTPError:
+        #    print('%s 不可达' % url)
+        #    f.write(url + '不可达' + '\n')
+        #    f.flush()
+        #except urllib.error.URLError:
+        #    print('%s 不可达' % url)
+        #    f.write(url + '不可达' + '\n')
+        #    f.flush()
+        #except socket.timeout:
+        #    pass
+        #    print('%s 超时' % url)
+        #    f.write(url + '超时' + '\n')
+        #    f.flush()
+            
+        try:
+            m = socket.read()#.decode('utf-8')
+        except BaseException:
+            print('%s 不可达' % url)
+        has_q.append(url)
+        check = re.findall(r'http://[\w.]+', str(m))
+        #list去重，先将list转为set再转为list即可
+        check = list(set(check))
+
         for x in check:
-            print(x)
-        f.write(m)  
-        f.close() 
+            if x in has_q:
+                break
+            else:
+                wait_q.append(x)
+
+        url = wait_q.pop()
+        if url == None:
+            f.close()
+            break
+
+            
+        #while x:
+        #    x = wait_q.get()
+        #    print(x)
+
+        #print('Done')
+
+        #f.write(m)  
+        #f.close() 
 
 spider(urlbase)
 
