@@ -14,29 +14,69 @@ header = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko'
 } 
 
-def getImg(m):
+number = 0
+
+def getImg(m, url):
     print('In getImg')
-    imglist = re.findall(r'src="[\w\.\/]+jpg"', str(m))  
-    #imglist = re.findall(r'images/tb6.jpg', str(m))  
-    #imglist = re.findall(r'_mediafile/snutedu/2015/04/30/34csr9l1ii.jpg', str(m))  
+
+    #print(url)
+
+    #if str(url[-1]) == '/':
+    #    #print('In if')
+    #    pass
+    #else:
+    #    url = str(url) + '/'
+    #    #print('In else')
+
+    #print(url)
+    #return
+
+    imglist = re.findall(r'[\w\.\/]+jpg', str(m))  
     imglist = list(set(imglist))
 
-    #imgurl = imglist.pop()
-    imglist = re.findall('[\w\.\/]+jpg', str(imglist))
+    temp = imglist
+    for x in temp:
+        if str(url[-1]) != '/' and str(x[0]) != '/':
+            url = str(url) + '/'
+        elif str(url[-1]) == '/' and str(x[0]) == '/':
+            url = url[:-1]
+        else:
+            pass
 
-    temp = imglist.pop()
-    templist = 'http://www.snut.edu.cn/' + str(temp)
 
-    print(templist)
+        #if str(url[-1]) == '/' and str(x[0]) == '/':
+        #    pass
+        #elif str(url[-1]) == '/' and str(x[0]) != '/':
+        #    pass
+        #elif str(url[-1]) != '/' and str(x[0]) == '/':
+        #    pass
+        #else:
+        #    #print('Before ' + str(url) + str(x))
+        #    url = str(url) + '/'
+        #    #print('After ' + str(url) + str(x))
+        #    #input()
 
-    image = urllib.request.urlretrieve(templist, "/home/acer/python/webapp/test.jpg", None)
+    try:
+        global number
+        for x in imglist:
+            templist = str(url) + str(x)
+            print(templist)
+            try:
+                #创建文件
+                f = open("/home/acer/python/webapp/JPG/" + str(number) + ".jpg", "w")
+                f.flush()
+                f.close()
+                #下载图片 
+                image = urllib.request.urlretrieve(templist, "/home/acer/python/webapp/JPG/" + str(number) +".jpg")
+            except BaseException:
+                print('下载错误')
+            finally:
+                number += 1
+                print('number = %d' % (number - 1))
+    except IndexError:
+        print('Done.')
 
     return imglist
-
-    #x = 0  
-    #for imgurl in imglist:  
-    #    urllib.urlretrieve(imgurl,'%s.jpg' % x)  
-    #    x = x + 1 
 
 def spider(url):
     #sName = 'test.html'
@@ -75,7 +115,7 @@ def spider(url):
             print('%s 不可达' % url)
         has_q.append(url)
         check = re.findall(r'http://[\w.]+snut.edu.cn[\w\/]+', str(m))
-        imglist = getImg(m)
+        imglist = getImg(m, url)
         #list去重，先将list转为set再转为list即可
         check = list(set(check))
 
@@ -86,8 +126,8 @@ def spider(url):
                 wait_q.append(x)
 
         try:
-            #url = wait_q.pop()
-            break
+            url = wait_q.pop()
+            #pass
         except IndexError:
             print('Done.')
             f.close()
