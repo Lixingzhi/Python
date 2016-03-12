@@ -50,7 +50,7 @@ def spider(url):
         except BaseException:
             print('%s 不可达' % url)
         has_q.append(url)
-        check = re.findall(r'http://[\w.]+', str(m))
+        check = re.findall(r'http://[\w.]+snut.edu.cn[\w\/]+', str(m))
         #list去重，先将list转为set再转为list即可
         check = list(set(check))
 
@@ -60,8 +60,10 @@ def spider(url):
             else:
                 wait_q.append(x)
 
-        url = wait_q.pop()
-        if url == None:
+        try:
+            url = wait_q.pop()
+        except IndexError:
+            print('Done.')
             f.close()
             break
 
